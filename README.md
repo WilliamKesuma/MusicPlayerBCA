@@ -1,18 +1,25 @@
 # BCAMusicPlayer
 
-A scalable iOS music player architected with the **MVVM (Model-View-ViewModel)** design pattern, focusing on testability and clean separation of concerns.
+A scalable, professional-grade iOS music player architected with the **MVVM (Model-View-ViewModel)** design pattern. This project is built with a focus on testability, modularity, and automated quality assurance.
 
-## CI/CD Pipeline
-- **GitHub Actions:** Automated CI pipeline configured to run unit tests on every push.
-- **Testing:** Comprehensive test suite for ViewModel logic, ensuring business requirements are validated.
-- **Deployment Strategy:** Configured for automated TestFlight distribution. The project uses **Automatic Code Signing**. 
+## Key Engineering Decisions
+* **Architecture:** Implemented using **MVVM** to ensure a clean separation between business logic and UI components.
+* **Concurrency:** Utilizes `async/await` and `Combine` for modern, responsive data handling.
+* **Test-Driven Development:** Includes a robust suite of unit tests covering `PlayerViewModel` and `SearchViewModel` logic.
+* **CI/CD Pipeline:** Configured with **GitHub Actions** to automate the build and testing lifecycle on every push.
 
-## Instructions for Contributors
-To build and upload to TestFlight:
-1. Open the project in Xcode.
-2. Navigate to **Signing & Capabilities** in the target settings.
-3. Select your personal Apple ID from the **Team** dropdown to allow Xcode to manage development certificates automatically.
-4. Ensure the **Bundle Identifier** is set to a unique value if required.
+## Technical Stack
+* **Language:** Swift
+* **Frameworks:** SwiftUI, Combine, XCTest
+* **Networking:** URLSession with custom API service layer
 
-## Testing Strategy
-- The app uses asynchronous MVVM. Use the 'Test' scheme (Cmd+U) to execute the test suite.
+## CI/CD Architecture
+
+
+- **Continuous Integration:** Every commit triggers an automated build and test process via GitHub Actions.
+- **Verification:** The CI pipeline ensures that all new code changes adhere to the project's quality standards and pass the comprehensive test suite before merging.
+
+## How to Run
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/WilliamKesuma/BCAMusicPlayer.git](https://github.com/WilliamKesuma/BCAMusicPlayer.git)
