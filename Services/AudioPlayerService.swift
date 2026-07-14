@@ -124,9 +124,9 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     }
 
     @objc private func playerDidFinishPlaying() {
-        isPlayingSubject.send(false)
-        currentTimeSubject.send(0)
-        player?.seek(to: .zero)
+        isPlayingSubject.send(false)                    // Update the isPlaying state to false when playback finishes
+        currentTimeSubject.send(0)                      // Reset current time to 0 when playback finishes
+        player?.seek(to: .zero)                         // Reset the player to the beginning
     }
 
     // MARK: - Public Interface
@@ -151,13 +151,14 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
     func play() {
         player?.play()
-        isPlayingSubject.send(true)
+        isPlayingSubject.send(true)                     // Update the isPlaying state to true when playback starts
     }
 
     func pause() {
         player?.pause()
-        isPlayingSubject.send(false)
+        isPlayingSubject.send(false)                    // Update the isPlaying state to false when playback pauses
     }
+
 
     func seek(to time: TimeInterval) {
         let cmTime = CMTime(seconds: time, preferredTimescale: CMTimeScale(NSEC_PER_SEC))

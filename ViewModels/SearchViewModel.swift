@@ -57,11 +57,11 @@ final class SearchViewModel: ObservableObject {
     // MARK: - Private Methods
 
     private func setupSearchDebounce() {
-        $searchQuery
-            .dropFirst()
-            .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
-            .removeDuplicates()
-            .sink { [weak self] raw in
+        $searchQuery                                                              // watch for changes in the search query
+            .dropFirst() // ignore the initial value
+            .debounce(for: .milliseconds(500), scheduler: RunLoop.main)           // wait for 500ms of inactivity
+            .removeDuplicates()                                                   // ignore if the query hasn't changed
+            .sink { [weak self] raw in                                            // use [weak self] to avoid retain cycles
                 guard let self else { return }
                 let query = raw.trimmingCharacters(in: .whitespacesAndNewlines)
                 if query.isEmpty {

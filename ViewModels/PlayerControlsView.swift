@@ -12,7 +12,6 @@ struct PlayerControlsView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            // Progress + time labels
             VStack(spacing: 8) {
                 ProgressSlider()
                 HStack {
