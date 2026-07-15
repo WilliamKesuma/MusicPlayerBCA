@@ -100,7 +100,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     }
 
     private func addPeriodicTimeObserver() {
-        let interval = CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+        let interval = CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC)) // CHECK Playing status every 0.5 sec
         timeObserver = player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
             self?.currentTimeSubject.send(CMTimeGetSeconds(time))
         }
@@ -137,7 +137,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         let asset = AVURLAsset(url: url)
 
         do {
-            let isPlayable = try await asset.load(.isPlayable)
+            let isPlayable = try await asset.load(.isPlayable) //waits (async) to confirm it's playable, creates an AVPlayer
             guard isPlayable else { throw AudioPlayerError.loadFailed }
         } catch {
             throw AudioPlayerError.loadFailed
@@ -146,7 +146,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         let playerItem = AVPlayerItem(asset: asset)
         player = AVPlayer(playerItem: playerItem)
         observePlayerItem(playerItem)
-        addPeriodicTimeObserver()
+        addPeriodicTimeObserver() //Setting up the periodic time-check every 0.5 seconds and listening for "did the song finish" notifications
     }
 
     func play() {

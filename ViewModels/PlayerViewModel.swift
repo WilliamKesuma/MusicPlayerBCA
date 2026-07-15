@@ -29,11 +29,13 @@ final class PlayerViewModel: ObservableObject {
         return queue.firstIndex(of: track)
     }
 
+    // "Is there a track after this one" — used to enable/disable the next button
     var hasNext: Bool {
         guard let index = currentIndex else { return false }
         return index < queue.count - 1
     }
 
+    // "Is there a track before this one" — used to enable/disable the previous button
     var hasPrevious: Bool {
         guard let index = currentIndex else { return false }
         return index > 0
@@ -58,23 +60,25 @@ final class PlayerViewModel: ObservableObject {
 
     // MARK: - Private Methods
 
+    // Channel 1: play/pause state — just copy it straight into isPlaying, no extra logic needed
     private func bindAudioService() {
         audioService.isPlayingPublisher
             .receive(on: DispatchQueue.main)
             .assign(to: &$isPlaying)
 
+    // Channel 2: current playback time — this one needs custom logic (not a plain assign)
         audioService.currentTimePublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] time in
                 guard let self, !self.isDraggingSlider else { return }
                 self.currentTime = time
-                // Update duration continuously since AVPlayer loads it async
                 let dur = self.audioService.duration
                 if dur > 0 { self.duration = dur }
             }
             .store(in: &cancellables)
     }
 
+    // The actual "go get this track ready and play it" sequence
     private func loadAndPlay(track: Track) async {
         guard let urlString = track.previewUrl, let url = URL(string: urlString) else {
             errorMessage = "This track doesn't have a preview available."
@@ -87,7 +91,7 @@ final class PlayerViewModel: ObservableObject {
         duration = track.durationInSeconds > 0 ? track.durationInSeconds : 30
 
         do {
-            try await audioService.load(url: url)
+            try await audioService.load(url: url) // this is the async step with no cancellation (if rapid tapping the button, )
             audioService.play()
             let dur = audioService.duration
             if dur > 0 { duration = dur }
@@ -100,16 +104,19 @@ final class PlayerViewModel: ObservableObject {
 
     // MARK: - Public Interface
 
+    // Called when tapping a track from the search results list
     func setQueue(_ tracks: [Track], startingAt track: Track) {
         queue = tracks
         play(track: track)
     }
 
+    // MAIN FUNCTION
     func play(track: Track) {
         currentTrack = track
         Task { await loadAndPlay(track: track) }
     }
-
+    
+    // PLAY PAUSE
     func togglePlayPause() {
         if isPlaying {
             audioService.pause()
@@ -118,6 +125,7 @@ final class PlayerViewModel: ObservableObject {
         }
     }
 
+    // CEHCK IF THERE IS PREVIOUS OR NEXT SONG
     func next() {
         guard let index = currentIndex, index < queue.count - 1 else { return }
         play(track: queue[index + 1])

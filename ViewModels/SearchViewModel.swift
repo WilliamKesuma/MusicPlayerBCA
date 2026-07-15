@@ -44,6 +44,8 @@ final class SearchViewModel: ObservableObject {
     private let apiService: MusicAPIServiceProtocol
     private var searchTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
+    
+    // Default Query
     private let defaultBrowseQuery: String = "top hits"
 
     // MARK: - Init
@@ -57,11 +59,11 @@ final class SearchViewModel: ObservableObject {
     // MARK: - Private Methods
 
     private func setupSearchDebounce() {
-        $searchQuery                                                              // watch for changes in the search query
-            .dropFirst() // ignore the initial value
-            .debounce(for: .milliseconds(500), scheduler: RunLoop.main)           // wait for 500ms of inactivity
-            .removeDuplicates()                                                   // ignore if the query hasn't changed
-            .sink { [weak self] raw in                                            // use [weak self] to avoid retain cycles
+        $searchQuery
+            .dropFirst()
+            .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
+            .removeDuplicates()
+            .sink { [weak self] raw in
                 guard let self else { return }
                 let query = raw.trimmingCharacters(in: .whitespacesAndNewlines)
                 if query.isEmpty {
@@ -78,6 +80,7 @@ final class SearchViewModel: ObservableObject {
             .store(in: &cancellables)
     }
 
+    // Default query if needed
     private func loadInitialTracksIfNeeded() async {
         guard !initialLoaded else { return }
         initialLoaded = true
@@ -85,10 +88,10 @@ final class SearchViewModel: ObservableObject {
         await performSearch(query: defaultBrowseQuery)
     }
 
-    // MARK: - Public Methods
+    // MARK: - Public Methods (MAIN SEARCH FUNC)
 
     func performSearch(query: String) async {
-        if let task = searchTask { task.cancel() }
+        if let task = searchTask { task.cancel() }  // STEP 1: cancel whatever search was previously running
 
         guard !query.trimmingCharacters(in: .whitespaces).isEmpty else {
             viewState = .idle
@@ -97,19 +100,19 @@ final class SearchViewModel: ObservableObject {
             return
         }
 
-        viewState = .loading
+        viewState = .loading 
 
         let currentQuery = query
-        let task = Task { @MainActor in
+        let task = Task { @MainActor in            // STEP 2: start a new cancellable task for this specific search
             do {
-                let results = try await apiService.searchTracks(query: currentQuery)
-                if Task.isCancelled { return }
+                let results = try await apiService.searchTracks(query: currentQuery) // Search query
+                if Task.isCancelled { return }    // STEP 3: if a NEWER search started while this was in flight, drop these stale results silently
                 self.tracks = results
-                self.viewState = .success(results)
+                self.viewState = .success(results) // Success
             } catch {
                 if Task.isCancelled { return }
                 self.tracks = []
-                self.viewState = .failure(error)
+                self.viewState = .failure(error)   // Fail
             }
         }
         searchTask = task

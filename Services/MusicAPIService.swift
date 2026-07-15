@@ -15,7 +15,8 @@ enum NetworkError: LocalizedError {
     case decodingFailed(Error)
     case serverError(Int)
     case unknown(Error)
-
+    
+// MARK: - ERROR Description Lists
     var errorDescription: String? {
         switch self {
         case .invalidURL:
@@ -45,7 +46,7 @@ final class MusicAPIService: MusicAPIServiceProtocol {
     // MARK: - Properties
 
     private let session: URLSession
-    private let baseURL = "https://itunes.apple.com/search"
+    private let baseURL = "https://itunes.apple.com/search" // iTunes API Base URL
 
     // MARK: - Init
 
@@ -53,13 +54,14 @@ final class MusicAPIService: MusicAPIServiceProtocol {
         self.session = session
     }
 
-    // MARK: - Search
+    // MARK: - Search (MAIN FUNCTION)
 
     func searchTracks(query: String) async throws -> [Track] {
         guard !query.trimmingCharacters(in: .whitespaces).isEmpty else {
             return []
         }
-
+        
+        // Components to check for special characters automatically, avoiding manual string concatenation bugs
         var components = URLComponents(string: baseURL)
         components?.queryItems = [
             URLQueryItem(name: "term", value: query),
@@ -81,8 +83,8 @@ final class MusicAPIService: MusicAPIServiceProtocol {
             }
 
             do {
-                let apiResponse = try JSONDecoder().decode(APIResponse.self, from: data)
-                return apiResponse.results.filter { $0.previewUrl != nil }
+                let apiResponse = try JSONDecoder().decode(APIResponse.self, from: data) // JSON Decoder
+                return apiResponse.results.filter { $0.previewUrl != nil } // Filter to only show songs that are playablevo
             } catch {
                 throw NetworkError.decodingFailed(error)
             }
