@@ -11,6 +11,8 @@ struct SearchView: View {
     @StateObject private var searchViewModel = SearchViewModel()
     @StateObject private var playerViewModel = PlayerViewModel()
     @State private var showingPlayer = false
+    
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         NavigationStack {
@@ -42,6 +44,11 @@ struct SearchView: View {
                 PlayerView(viewModel: playerViewModel)
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
+            }
+            .onChange(of: scenePhase) { oldPhase, newPhase in
+                if newPhase == .background {
+                    searchViewModel.clearSearch();
+                }
             }
         }
     }
@@ -97,6 +104,7 @@ struct SearchView: View {
                     await searchViewModel.performSearch(query: searchViewModel.searchQuery)
                 }
             }
+            
         }
     }
 

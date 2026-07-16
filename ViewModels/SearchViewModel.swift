@@ -46,7 +46,7 @@ final class SearchViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     // Default Query
-    private let defaultBrowseQuery: String = "top hits"
+    private let defaultBrowseQuery: String = ""
 
     // MARK: - Init
 
@@ -61,7 +61,7 @@ final class SearchViewModel: ObservableObject {
     private func setupSearchDebounce() {
         $searchQuery
             .dropFirst()
-            .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
+            .debounce(for: .milliseconds(500), scheduler: RunLoop.main) // searches only after 500ms not per character
             .removeDuplicates()
             .sink { [weak self] raw in
                 guard let self else { return }
@@ -74,10 +74,11 @@ final class SearchViewModel: ObservableObject {
                     Task { await self.loadInitialTracksIfNeeded() }
                     
                 } else {
-                    Task { await self.performSearch(query: query) }
+                    Task { await self.performSearch(query: query) } // perform search
                 }
             }
             .store(in: &cancellables)
+            
     }
 
     // Default query if needed
@@ -117,9 +118,11 @@ final class SearchViewModel: ObservableObject {
         }
         searchTask = task
         await task.value
+        
     }
+    
 
-    func clearSearch() {
+    public func clearSearch() {
         searchQuery = ""
         tracks = []
         viewState = .idle

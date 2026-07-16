@@ -146,7 +146,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         let playerItem = AVPlayerItem(asset: asset)
         player = AVPlayer(playerItem: playerItem)
         observePlayerItem(playerItem)
-        addPeriodicTimeObserver() //Setting up the periodic time-check every 0.5 seconds and listening for "did the song finish" notifications
+        addPeriodicTimeObserver()                       //Setting up the periodic time-check every 0.5 seconds and listening for "did the song finish" notifications
     }
 
     func play() {

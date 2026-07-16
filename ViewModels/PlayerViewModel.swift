@@ -60,7 +60,7 @@ final class PlayerViewModel: ObservableObject {
 
     // MARK: - Private Methods
 
-    // Channel 1: play/pause state — just copy it straight into isPlaying, no extra logic needed
+    // Channel 1: play/pause state - just copy it straight into isPlaying, no extra logic needed
     private func bindAudioService() {
         audioService.isPlayingPublisher
             .receive(on: DispatchQueue.main)
@@ -91,7 +91,7 @@ final class PlayerViewModel: ObservableObject {
         duration = track.durationInSeconds > 0 ? track.durationInSeconds : 30
 
         do {
-            try await audioService.load(url: url) // this is the async step with no cancellation (if rapid tapping the button, )
+            try await audioService.load(url: url) // this is the async step with no cancellation (if rapid tapping the button, it cancels previous request)
             audioService.play()
             let dur = audioService.duration
             if dur > 0 { duration = dur }
