@@ -46,7 +46,7 @@ final class SearchViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     // Default Query
-    private let defaultBrowseQuery: String = ""
+    private let defaultBrowseQuery: String = "Laufey"
 
     // MARK: - Init
 
